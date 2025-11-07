@@ -210,4 +210,4 @@ function extractPincode(address) {
   
   const pincodeMatch = address.match(/\b\d{6}\b/);
   return pincodeMatch ? pincodeMatch[0] : '';
-      }
+}
