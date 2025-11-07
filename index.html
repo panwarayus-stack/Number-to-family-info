@@ -12,10 +12,14 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Courier New', monospace;
+            background-color: #0a0a0a;
+            color: #00ff00;
             min-height: 100vh;
             padding: 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 0, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 0, 0.05) 0%, transparent 20%);
         }
 
         .container {
@@ -25,28 +29,67 @@
 
         .header {
             text-align: center;
-            color: white;
             margin-bottom: 50px;
             padding: 40px 20px;
+            position: relative;
+            border-bottom: 1px solid #00ff00;
         }
 
         .header h1 {
-            font-size: 3.5rem;
+            font-size: 3rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 0 10px #00ff00;
+            letter-spacing: 2px;
         }
 
         .header p {
-            font-size: 1.3rem;
-            opacity: 0.9;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .header::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
         }
 
         .card {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
+            background: rgba(10, 20, 10, 0.7);
+            border-radius: 5px;
+            padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+        }
+
+        .card h2 {
+            color: #00ff00;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .card p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #a0ffa0;
         }
 
         .api-section {
@@ -60,29 +103,48 @@
             .api-section {
                 grid-template-columns: 1fr;
             }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
         }
 
         .endpoint-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
-            border-left: 5px solid #667eea;
+            background: rgba(15, 30, 15, 0.8);
+            border-radius: 5px;
+            padding: 20px;
+            border-left: 3px solid #00ff00;
+            position: relative;
         }
 
         .endpoint-card h3 {
-            color: #333;
+            color: #00ff00;
             margin-bottom: 15px;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
         }
 
         .code-block {
-            background: #2d3748;
-            color: #e2e8f0;
+            background: #001100;
+            color: #00ff00;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 5px;
             font-family: 'Courier New', monospace;
             margin: 15px 0;
             overflow-x: auto;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            position: relative;
+        }
+
+        .code-block::before {
+            content: ">";
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            color: #00ff00;
         }
 
         .try-section {
@@ -91,25 +153,47 @@
         }
 
         .try-button {
-            background: #48bb78;
-            color: white;
-            border: none;
+            background: transparent;
+            color: #00ff00;
+            border: 1px solid #00ff00;
             padding: 15px 30px;
             font-size: 1.1rem;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
         }
 
         .try-button:hover {
-            background: #38a169;
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .try-button::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .try-button:hover::after {
+            left: 100%;
         }
 
         .response-section {
-            background: #edf2f7;
-            border-radius: 10px;
+            background: rgba(10, 20, 10, 0.8);
+            border-radius: 5px;
             padding: 25px;
             margin-top: 30px;
+            border: 1px solid rgba(0, 255, 0, 0.2);
         }
 
         .feature-grid {
@@ -122,29 +206,53 @@
         .feature {
             text-align: center;
             padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: rgba(15, 30, 15, 0.8);
+            border-radius: 5px;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.1);
         }
 
         .feature-icon {
             font-size: 2.5rem;
             margin-bottom: 15px;
+            filter: drop-shadow(0 0 5px rgba(0, 255, 0, 0.5));
+        }
+
+        .feature h3 {
+            color: #00ff00;
+            margin-bottom: 10px;
         }
 
         .footer {
             text-align: center;
-            color: white;
             margin-top: 50px;
             padding: 20px;
             opacity: 0.8;
+            border-top: 1px solid rgba(0, 255, 0, 0.3);
+            position: relative;
+        }
+
+        .footer::before {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
         }
 
         .test-form {
-            background: white;
+            background: rgba(15, 30, 15, 0.8);
             padding: 30px;
-            border-radius: 10px;
+            border-radius: 5px;
             margin: 30px 0;
+            border: 1px solid rgba(0, 255, 0, 0.2);
         }
 
         .form-group {
@@ -155,120 +263,170 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #333;
+            color: #00ff00;
         }
 
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 5px;
             font-size: 1rem;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(0, 255, 0, 0.5);
+        }
+
+        pre {
+            background: #001100;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 200px;
+            overflow-x: auto;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
         }
     </style>
 </head>
 <body>
+    <div class="scan-line"></div>
+    
     <div class="container">
         <div class="header">
-            <h1>👨‍👩‍👧‍👦 Family Info API</h1>
-            <p>Get complete family information from mobile numbers instantly</p>
+            <h1>👨‍👩‍👧‍👦 FAMILY INFO API <span class="blink">_</span></h1>
+            <p>ACCESS FAMILY INFORMATION FROM MOBILE NUMBERS</p>
         </div>
 
         <div class="card">
-            <h2>🚀 About This API</h2>
-            <p>This powerful API allows you to retrieve comprehensive family information using just a mobile number. It securely fetches data from reliable sources and presents it in a beautiful, formatted way.</p>
+            <h2>🚀 SYSTEM OVERVIEW</h2>
+            <p>This API provides secure access to comprehensive family information using mobile number verification. Data is retrieved from encrypted sources and formatted for optimal readability.</p>
             
             <div class="feature-grid">
                 <div class="feature">
                     <div class="feature-icon">📱</div>
-                    <h3>Mobile Number Input</h3>
-                    <p>Simply provide a 10-digit Indian mobile number</p>
+                    <h3>MOBILE VERIFICATION</h3>
+                    <p>10-digit Indian mobile number input</p>
                 </div>
                 <div class="feature">
                     <div class="feature-icon">👪</div>
-                    <h3>Family Details</h3>
-                    <p>Get complete family member information</p>
+                    <h3>FAMILY DATA</h3>
+                    <p>Complete family member information</p>
                 </div>
                 <div class="feature">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Fast & Reliable</h3>
-                    <p>Quick responses with formatted data</p>
+                    <div class="feature-icon">⚡</div>
+                    <h3>HIGH SPEED</h3>
+                    <p>Optimized response times</p>
                 </div>
                 <div class="feature">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Secure</h3>
-                    <p>Your data is handled securely</p>
+                    <div class="feature-icon">🔐</div>
+                    <h3>ENCRYPTED</h3>
+                    <p>Secure data transmission</p>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>🔗 API Endpoints</h2>
+            <h2>🔗 ACCESS POINTS</h2>
             <div class="api-section">
                 <div class="endpoint-card">
                     <h3>GET /api/fetchdata</h3>
-                    <p>Get family information from mobile number</p>
+                    <p>Primary endpoint for family information retrieval</p>
                     <div class="code-block">
 // Basic Usage<br>
-https://familyinfo-ogzgnyqgw-panwarayus-9463s-projects.vercel.app/api/fetchdata?number=MOBILE_NUMBER
+https://num2famly.vercel.app/api/fetchdata?number=MOBILE_NUMBER
                     </div>
                 </div>
                 
                 <div class="endpoint-card">
                     <h3>GET / (Root)</h3>
-                    <p>Same functionality via root endpoint</p>
+                    <p>Alternative access via root endpoint</p>
                     <div class="code-block">
 // Root Endpoint<br>
-https://familyinfo-ogzgnyqgw-panwarayus-9463s-projects.vercel.app/?number=MOBILE_NUMBER
+https://num2famly.vercel.app/?number=MOBILE_NUMBER
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>🧪 Test the API</h2>
+            <h2>🧪 SYSTEM TEST</h2>
             <div class="test-form">
                 <div class="form-group">
-                    <label for="mobileNumber">Enter Mobile Number:</label>
+                    <label for="mobileNumber">ENTER MOBILE NUMBER:</label>
                     <input type="text" id="mobileNumber" placeholder="Enter 10-digit mobile number" maxlength="10">
                 </div>
-                <button class="try-button" onclick="testAPI()">Test API</button>
+                <button class="try-button" onclick="testAPI()">INITIATE SCAN</button>
             </div>
 
             <div class="response-section">
-                <h3>API Response:</h3>
-                <pre id="apiResponse" style="background: #2d3748; color: white; padding: 20px; border-radius: 8px; margin-top: 15px; min-height: 200px; overflow-x: auto;">
-Click "Test API" to see response here...
+                <h3>SYSTEM RESPONSE:</h3>
+                <pre id="apiResponse">
+Click "INITIATE SCAN" to see response here...
                 </pre>
             </div>
         </div>
 
         <div class="card">
-            <h2>📖 Usage Examples</h2>
+            <h2>📖 IMPLEMENTATION EXAMPLES</h2>
             
-            <h3>cURL Example:</h3>
+            <h3>cURL Command:</h3>
             <div class="code-block">
-curl "https://familyinfo-ogzgnyqgw-panwarayus-9463s-projects.vercel.app/api/fetchdata?number=9627128776"
+curl "https://num2famly.vercel.app/api/fetchdata?number=9627128776"
             </div>
 
-            <h3>JavaScript Example:</h3>
+            <h3>JavaScript Implementation:</h3>
             <div class="code-block">
-fetch('https://familyinfo-ogzgnyqgw-panwarayus-9463s-projects.vercel.app/api/fetchdata?number=9627128776')<br>
+fetch('https://num2famly.vercel.app/api/fetchdata?number=9627128776')<br>
   .then(response => response.json())<br>
   .then(data => console.log(data))<br>
   .catch(error => console.error('Error:', error));
             </div>
 
-            <h3>Python Example:</h3>
+            <h3>Python Implementation:</h3>
             <div class="code-block">
 import requests<br><br>
 response = requests.get(<br>
-  'https://familyinfo-ogzgnyqgw-panwarayus-9463s-projects.vercel.app/api/fetchdata?number=9627128776'<br>
+  'https://num2famly.vercel.app/api/fetchdata?number=9627128776'<br>
 )<br>
 data = response.json()<br>
 print(data)
@@ -276,7 +434,7 @@ print(data)
         </div>
 
         <div class="card">
-            <h2>📋 Response Format</h2>
+            <h2>📋 RESPONSE STRUCTURE</h2>
             <div class="code-block">
 {
   "success": true,
@@ -317,8 +475,8 @@ print(data)
         </div>
 
         <div class="footer">
-            <p>Built with ❤️ | Family Info API v1.0</p>
-            <p>© 2024 All rights reserved</p>
+            <p>SYSTEM ONLINE | FAMILY INFO API v1.0 <span class="blink">|</span></p>
+            <p>© 2024 SECURE ACCESS ONLY</p>
         </div>
     </div>
 
@@ -328,18 +486,18 @@ print(data)
             const responseElement = document.getElementById('apiResponse');
             
             if (!mobileNumber) {
-                responseElement.innerHTML = '❌ Please enter a mobile number';
+                responseElement.innerHTML = '❌ ERROR: NO INPUT DETECTED';
                 return;
             }
 
             if (!/^[6-9]\d{9}$/.test(mobileNumber)) {
-                responseElement.innerHTML = '❌ Please enter a valid 10-digit Indian mobile number';
+                responseElement.innerHTML = '❌ ERROR: INVALID MOBILE NUMBER FORMAT';
                 return;
             }
 
-            responseElement.innerHTML = '🔄 Fetching data...';
+            responseElement.innerHTML = '🔄 INITIATING DATA RETRIEVAL...';
             
-            const apiUrl = `https://familyinfo-ogzgnyqgw-panwarayus-9463s-projects.vercel.app/api/fetchdata?number=${mobileNumber}`;
+            const apiUrl = `https://num2famly.vercel.app/api/fetchdata?number=${mobileNumber}`;
             
             fetch(apiUrl)
                 .then(response => response.json())
@@ -347,7 +505,7 @@ print(data)
                     responseElement.innerHTML = JSON.stringify(data, null, 2);
                 })
                 .catch(error => {
-                    responseElement.innerHTML = `❌ Error: ${error.message}`;
+                    responseElement.innerHTML = `❌ SYSTEM ERROR: ${error.message}`;
                 });
         }
 
@@ -357,6 +515,24 @@ print(data)
                 testAPI();
             }
         });
+        
+        // Add terminal-like typing effect to header
+        document.addEventListener('DOMContentLoaded', function() {
+            const headerText = document.querySelector('.header p');
+            const originalText = headerText.textContent;
+            headerText.textContent = '';
+            
+            let i = 0;
+            const typeWriter = () => {
+                if (i < originalText.length) {
+                    headerText.textContent += originalText.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 50);
+                }
+            };
+            
+            setTimeout(typeWriter, 1000);
+        });
     </script>
 </body>
-  </html>
+</html>
