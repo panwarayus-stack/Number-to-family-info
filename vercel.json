@@ -4,6 +4,10 @@
     {
       "src": "api/fetchdata.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -13,7 +17,7 @@
     },
     {
       "src": "/",
-      "dest": "/api/fetchdata"
+      "dest": "/index.html"
     }
   ],
   "env": {
