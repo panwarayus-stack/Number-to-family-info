@@ -12,15 +12,13 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "src": "/api/fetchdata",
+      "dest": "/api/fetchdata.js"
     },
     {
       "src": "/",
-      "dest": "/index.html"
+      "dest": "/index.html",
+      "methods": ["GET"]
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
