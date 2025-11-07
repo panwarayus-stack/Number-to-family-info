@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { number, debug } = req.query;
+    const { number } = req.query;
 
     if (!number) {
       return res.status(400).json({
@@ -35,134 +35,98 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`🔍 Searching for mobile: ${number}`);
-
-    // Step 1: Get mobile info from first API
+    // Step 1: Get mobile info from first API with timeout
     const mobileApiUrl = `https://allapiinone.vercel.app/?key=DEMOKEY&type=mobile&term=${number}`;
-    console.log(`📡 Calling Mobile API: ${mobileApiUrl}`);
     
-    const mobileResponse = await fetch(mobileApiUrl);
+    const mobileController = new AbortController();
+    const mobileTimeout = setTimeout(() => mobileController.abort(), 8000); // 8 seconds timeout
     
+    const mobileResponse = await fetch(mobileApiUrl, { 
+      signal: mobileController.signal 
+    });
+    clearTimeout(mobileTimeout);
+
     if (!mobileResponse.ok) {
-      console.log(`❌ Mobile API Error: ${mobileResponse.status}`);
-      return res.status(500).json({
+      return res.status(200).json({
         success: false,
-        message: '🔍 Mobile lookup service unavailable',
-        debug: debug ? `HTTP ${mobileResponse.status}` : undefined
+        message: '📱 Mobile information service is currently unavailable. Please try again later.'
       });
     }
 
     const mobileData = await mobileResponse.json();
-    console.log(`📱 Mobile API Response:`, JSON.stringify(mobileData, null, 2));
 
-    if (!mobileData.success) {
-      return res.status(404).json({
+    if (!mobileData.success || !mobileData.result || mobileData.result.length === 0) {
+      return res.status(200).json({
         success: false,
-        message: '📭 No data found for this mobile number',
-        debug: debug ? mobileData : undefined
-      });
-    }
-
-    if (!mobileData.result || mobileData.result.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: '📭 Mobile number not found in database',
-        debug: debug ? 'Empty result array' : undefined
+        message: '📭 No information found for this mobile number. Please check the number and try again.'
       });
     }
 
     const usersData = mobileData.result;
-    console.log(`👥 Found ${usersData.length} user(s) for this mobile`);
-
     let familyData = null;
     let successfulUserData = null;
-    let triedUsers = [];
 
     // Try each user until we get successful family data
     for (const userData of usersData) {
       const aadhaarNumber = userData.id_number;
-      console.log(`🔑 Processing user: ${userData.name}, Aadhaar: ${aadhaarNumber ? 'Yes' : 'No'}`);
 
-      if (!aadhaarNumber) {
-        triedUsers.push({ name: userData.name, status: '❌ No Aadhaar linked' });
-        continue;
-      }
-
-      // Validate Aadhaar format (12 digits)
-      if (!/^\d{12}$/.test(aadhaarNumber)) {
-        triedUsers.push({ name: userData.name, status: '❌ Invalid Aadhaar format' });
-        continue;
+      if (!aadhaarNumber || !/^\d{12}$/.test(aadhaarNumber)) {
+        continue; // Skip users without valid Aadhaar
       }
 
       try {
-        // Step 2: Get family info from second API
+        // Step 2: Get family info from second API with timeout
         const familyApiUrl = `https://adhar-family.vercel.app/fetch?key=paidchx&aadhaar=${aadhaarNumber}`;
-        console.log(`🏠 Calling Family API for Aadhaar: ${aadhaarNumber}`);
         
-        const familyResponse = await fetch(familyApiUrl);
+        const familyController = new AbortController();
+        const familyTimeout = setTimeout(() => familyController.abort(), 8000); // 8 seconds timeout
         
-        if (!familyResponse.ok) {
-          console.log(`❌ Family API HTTP Error: ${familyResponse.status}`);
-          triedUsers.push({ name: userData.name, status: '❌ Family API error' });
-          continue;
-        }
+        const familyResponse = await fetch(familyApiUrl, { 
+          signal: familyController.signal 
+        });
+        clearTimeout(familyTimeout);
+
+        if (!familyResponse.ok) continue;
 
         const familyResponseData = await familyResponse.json();
-        console.log(`🏠 Family API Response:`, JSON.stringify(familyResponseData, null, 2));
 
-        // Check if the response indicates "Ration card not found"
+        // Check if we have valid family data
         if (familyResponseData.respCode === "214" || 
-            familyResponseData.respMessage === "Ration card not found in IMPDS") {
-          console.log(`❌ Ration card not found for Aadhaar: ${aadhaarNumber}`);
-          triedUsers.push({ name: userData.name, status: '📭 No ration card found' });
+            familyResponseData.respMessage === "Ration card not found in IMPDS" ||
+            !familyResponseData.memberDetailsList) {
           continue;
         }
 
-        if (!familyResponseData.memberDetailsList) {
-          console.log(`❌ No member details in family response`);
-          triedUsers.push({ name: userData.name, status: '📭 No family data available' });
-          continue;
-        }
-
-        // If we get here, we have successful family data
+        // Success - we found family data
         familyData = familyResponseData;
         successfulUserData = userData;
-        triedUsers.push({ name: userData.name, status: '✅ Family data found' });
-        console.log(`🎉 Successfully found family data for: ${userData.name}`);
-        break; // Exit the loop once we find successful data
+        break;
 
       } catch (error) {
-        console.log(`❌ Family API Exception: ${error.message}`);
-        triedUsers.push({ name: userData.name, status: '❌ Connection error' });
-        continue;
+        continue; // Try next user
       }
     }
 
-    // If no family data found for any user
+    // If no family data found
     if (!familyData) {
-      console.log(`❌ No family data found for any user`);
-      return res.status(404).json({
-        success: false,
-        message: '👨‍👩‍👧‍👦 Family data not found for this mobile number',
-        search_details: {
-          mobile_number: number,
-          total_users_found: usersData.length,
-          users_with_aadhaar: usersData.filter(user => user.id_number).length,
-          search_status: 'completed',
-          tried_users: triedUsers
+      // But we have mobile data - return what we have
+      const primaryUser = usersData[0];
+      return res.status(200).json({
+        success: true,
+        message: '✅ Mobile information found',
+        personal_info: {
+          title: '👤 Personal Information',
+          data: {
+            name: `🧾 ${primaryUser.name}`,
+            mobile_number: `📱 ${primaryUser.mobile}`,
+            father_name: `👨 ${primaryUser.father_name || 'Not available'}`,
+            alternate_mobile: `📞 ${primaryUser.alt_mobile || 'Not available'}`,
+            telecom_circle: `📶 ${primaryUser.circle}`,
+            email: `📧 ${primaryUser.email || 'Not available'}`,
+            address: `🏠 ${formatAddress(primaryUser.address)}`
+          }
         },
-        available_users: usersData.map(user => ({
-          name: `👤 ${user.name}`,
-          mobile: `📱 ${user.mobile}`,
-          father_name: `👨 ${user.father_name || 'Not available'}`,
-          address: `🏠 ${formatAddress(user.address)}`,
-          circle: `📶 ${user.circle}`,
-          has_aadhaar: user.id_number ? '✅ Yes' : '❌ No'
-        })),
-        debug: debug ? { 
-          raw_mobile_data: usersData,
-          tried_users: triedUsers 
-        } : undefined
+        note: '💡 Family details are currently unavailable for this number'
       });
     }
 
@@ -171,15 +135,13 @@ export default async function handler(req, res) {
       const emojiMap = {
         'SELF': '👤',
         'HUSBAND': '👨',
-        'WIFE': '👩',
+        'WIFE': '👩', 
         'SON': '👦',
         'DAUGHTER': '👧',
         'FATHER': '👴',
         'MOTHER': '👵',
         'BROTHER': '👨',
-        'SISTER': '👩',
-        'GRANDFATHER': '👴',
-        'GRANDMOTHER': '👵'
+        'SISTER': '👩'
       };
       return emojiMap[relationship] || '👤';
     };
@@ -187,7 +149,7 @@ export default async function handler(req, res) {
     // Format the successful response
     const formattedResponse = {
       success: true,
-      message: '✅ Data retrieved successfully',
+      message: '✅ Complete information retrieved successfully',
       
       personal_info: {
         title: '👤 Personal Information',
@@ -227,24 +189,26 @@ export default async function handler(req, res) {
         title: '📊 Search Summary',
         data: {
           mobile_searched: `🔍 ${number}`,
-          total_users_found: `👥 ${usersData.length} user(s)`,
-          successful_match: `✅ ${successfulUserData.name}`,
           total_family_members: `👪 ${familyData.memberDetailsList.length} members`,
           search_timestamp: `⏰ ${new Date().toLocaleString()}`
         }
       }
     };
 
-    console.log(`🎯 Success response sent for: ${number}`);
     res.status(200).json(formattedResponse);
 
   } catch (error) {
-    console.error('💥 Unhandled Error:', error);
-    res.status(500).json({
+    // Handle timeout and other errors gracefully
+    if (error.name === 'AbortError') {
+      return res.status(200).json({
+        success: false,
+        message: '⏰ Request timeout. Please try again in a moment.'
+      });
+    }
+
+    res.status(200).json({
       success: false,
-      message: '❌ Internal server error',
-      suggestion: 'Please try again with a valid mobile number',
-      debug: debug ? error.message : undefined
+      message: '❌ Service temporarily unavailable. Please try again later.'
     });
   }
 }
@@ -252,7 +216,6 @@ export default async function handler(req, res) {
 // Helper function to format address
 function formatAddress(address) {
   if (!address) return 'Not available';
-  
   try {
     const addressParts = address.split('!').filter(part => part.trim() !== '');
     return addressParts.join(', ');
@@ -264,7 +227,6 @@ function formatAddress(address) {
 // Helper function to extract pincode from address
 function extractPincode(address) {
   if (!address) return 'Not available';
-  
   const pincodeMatch = address.match(/\b\d{6}\b/);
   return pincodeMatch ? pincodeMatch[0] : 'Not available';
 }
