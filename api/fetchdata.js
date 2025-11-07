@@ -20,46 +20,28 @@ export default async function handler(req, res) {
     const { number } = req.query;
 
     if (!number) {
-      return res.status(400).json({
-        success: false,
-        message: '📱 Mobile number is required. Usage: /api/fetchdata?number=MOBILE_NUMBER'
-      });
+      return res.status(400).send('📱 Mobile number is required. Usage: /api/fetchdata?number=MOBILE_NUMBER');
     }
 
     // Validate mobile number format
     const mobileRegex = /^[6-9]\d{9}$/;
     if (!mobileRegex.test(number)) {
-      return res.status(400).json({
-        success: false,
-        message: '❌ Invalid mobile number format. Please provide a valid 10-digit Indian mobile number.'
-      });
+      return res.status(400).send('❌ Invalid mobile number format. Please provide a valid 10-digit Indian mobile number.');
     }
 
-    // Step 1: Get mobile info from first API with timeout
+    // Step 1: Get mobile info from first API
     const mobileApiUrl = `https://allapiinone.vercel.app/?key=DEMOKEY&type=mobile&term=${number}`;
     
-    const mobileController = new AbortController();
-    const mobileTimeout = setTimeout(() => mobileController.abort(), 8000); // 8 seconds timeout
+    const mobileResponse = await fetch(mobileApiUrl);
     
-    const mobileResponse = await fetch(mobileApiUrl, { 
-      signal: mobileController.signal 
-    });
-    clearTimeout(mobileTimeout);
-
     if (!mobileResponse.ok) {
-      return res.status(200).json({
-        success: false,
-        message: '📱 Mobile information service is currently unavailable. Please try again later.'
-      });
+      return res.status(200).send('📱 Service is currently unavailable. Please try again later.');
     }
 
     const mobileData = await mobileResponse.json();
 
     if (!mobileData.success || !mobileData.result || mobileData.result.length === 0) {
-      return res.status(200).json({
-        success: false,
-        message: '📭 No information found for this mobile number. Please check the number and try again.'
-      });
+      return res.status(200).send('📭 No information found for this mobile number.');
     }
 
     const usersData = mobileData.result;
@@ -71,21 +53,15 @@ export default async function handler(req, res) {
       const aadhaarNumber = userData.id_number;
 
       if (!aadhaarNumber || !/^\d{12}$/.test(aadhaarNumber)) {
-        continue; // Skip users without valid Aadhaar
+        continue;
       }
 
       try {
-        // Step 2: Get family info from second API with timeout
+        // Step 2: Get family info from second API
         const familyApiUrl = `https://adhar-family.vercel.app/fetch?key=paidchx&aadhaar=${aadhaarNumber}`;
         
-        const familyController = new AbortController();
-        const familyTimeout = setTimeout(() => familyController.abort(), 8000); // 8 seconds timeout
+        const familyResponse = await fetch(familyApiUrl);
         
-        const familyResponse = await fetch(familyApiUrl, { 
-          signal: familyController.signal 
-        });
-        clearTimeout(familyTimeout);
-
         if (!familyResponse.ok) continue;
 
         const familyResponseData = await familyResponse.json();
@@ -103,125 +79,77 @@ export default async function handler(req, res) {
         break;
 
       } catch (error) {
-        continue; // Try next user
+        continue;
       }
     }
 
     // If no family data found
     if (!familyData) {
-      // But we have mobile data - return what we have
-      const primaryUser = usersData[0];
-      return res.status(200).json({
-        success: true,
-        message: '✅ Mobile information found',
-        personal_info: {
-          title: '👤 Personal Information',
-          data: {
-            name: `🧾 ${primaryUser.name}`,
-            mobile_number: `📱 ${primaryUser.mobile}`,
-            father_name: `👨 ${primaryUser.father_name || 'Not available'}`,
-            alternate_mobile: `📞 ${primaryUser.alt_mobile || 'Not available'}`,
-            telecom_circle: `📶 ${primaryUser.circle}`,
-            email: `📧 ${primaryUser.email || 'Not available'}`,
-            address: `🏠 ${formatAddress(primaryUser.address)}`
-          }
-        },
-        note: '💡 Family details are currently unavailable for this number'
-      });
+      return res.status(200).send('👨‍👩‍👧‍👦 Family data not found for this mobile number.');
     }
 
-    // Get relationship emoji
-    const getRelationshipEmoji = (relationship) => {
-      const emojiMap = {
-        'SELF': '👤',
-        'HUSBAND': '👨',
-        'WIFE': '👩', 
-        'SON': '👦',
-        'DAUGHTER': '👧',
-        'FATHER': '👴',
-        'MOTHER': '👵',
-        'BROTHER': '👨',
-        'SISTER': '👩'
-      };
-      return emojiMap[relationship] || '👤';
-    };
-
-    // Format the successful response
-    const formattedResponse = {
-      success: true,
-      message: '✅ Complete information retrieved successfully',
-      
-      personal_info: {
-        title: '👤 Personal Information',
-        data: {
-          name: `🧾 ${successfulUserData.name}`,
-          mobile_number: `📱 ${successfulUserData.mobile}`,
-          father_name: `👨 ${successfulUserData.father_name || 'Not available'}`,
-          alternate_mobile: `📞 ${successfulUserData.alt_mobile || 'Not available'}`,
-          telecom_circle: `📶 ${successfulUserData.circle}`,
-          email: `📧 ${successfulUserData.email || 'Not available'}`,
-          address: `🏠 ${formatAddress(successfulUserData.address)}`
-        }
-      },
-
-      family_details: {
-        title: '👨‍👩‍👧‍👦 Family Details',
-        data: {
-          family_address: `📍 ${familyData.address}`,
-          district: `🏛️ ${familyData.homeDistName}`,
-          state: `🗺️ ${familyData.homeStateName}`,
-          pincode: `📮 ${extractPincode(familyData.address)}`,
-          scheme: `📋 ${familyData.schemeName || 'Not available'}`,
-          total_family_members: `👥 ${familyData.memberDetailsList.length} members`
-        }
-      },
-
-      family_members: {
-        title: '👪 Family Members List',
-        members: familyData.memberDetailsList.map(member => ({
-          name: `${getRelationshipEmoji(member.releationship_name)} ${member.memberName.trim()}`,
-          relationship: `🔗 ${member.releationship_name}`,
-          uid_status: member.uid === 'Yes' ? '✅ UID Verified' : '❌ UID Not Verified'
-        }))
-      },
-
-      search_summary: {
-        title: '📊 Search Summary',
-        data: {
-          mobile_searched: `🔍 ${number}`,
-          total_family_members: `👪 ${familyData.memberDetailsList.length} members`,
-          search_timestamp: `⏰ ${new Date().toLocaleString()}`
-        }
-      }
-    };
-
-    res.status(200).json(formattedResponse);
+    // Format and return complete family data
+    const formattedText = formatCompleteFamilyData(familyData, number);
+    return res.status(200).send(formattedText);
 
   } catch (error) {
-    // Handle timeout and other errors gracefully
-    if (error.name === 'AbortError') {
-      return res.status(200).json({
-        success: false,
-        message: '⏰ Request timeout. Please try again in a moment.'
-      });
-    }
-
-    res.status(200).json({
-      success: false,
-      message: '❌ Service temporarily unavailable. Please try again later.'
-    });
+    return res.status(200).send('❌ Service temporarily unavailable. Please try again later.');
   }
 }
 
-// Helper function to format address
-function formatAddress(address) {
-  if (!address) return 'Not available';
-  try {
-    const addressParts = address.split('!').filter(part => part.trim() !== '');
-    return addressParts.join(', ');
-  } catch (error) {
-    return address || 'Not available';
-  }
+// Format complete family data
+function formatCompleteFamilyData(familyData, searchedNumber) {
+  // Get relationship emoji
+  const getRelationshipEmoji = (relationship) => {
+    const emojiMap = {
+      'SELF': '👤',
+      'HUSBAND': '👨',
+      'WIFE': '👩',
+      'SON': '👦',
+      'DAUGHTER': '👧',
+      'FATHER': '👴',
+      'MOTHER': '👵',
+      'BROTHER': '👨',
+      'SISTER': '👩',
+      'GRANDFATHER': '👴',
+      'GRANDMOTHER': '👵'
+    };
+    return emojiMap[relationship] || '👤';
+  };
+
+  // Format family members with proper spacing
+  const familyMembers = familyData.memberDetailsList.map(member => {
+    const emoji = getRelationshipEmoji(member.releationship_name);
+    return `${emoji} ${member.memberName.trim()} (${member.releationship_name}) ${member.uid === 'Yes' ? '✅' : '❌'}`;
+  }).join('\n');
+
+  // Get Indian time
+  const indianTime = new Date().toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    dateStyle: 'medium',
+    timeStyle: 'medium'
+  });
+
+  return `
+👨‍👩‍👧‍👦 FAMILY DETAILS
+
+📍 Family Address: ${familyData.address}
+🏛️ District: ${familyData.homeDistName}
+🗺️ State: ${familyData.homeStateName}
+📮 Pincode: ${extractPincode(familyData.address)}
+📋 Scheme: ${familyData.schemeName || 'Not available'}
+👥 Total Family Members: ${familyData.memberDetailsList.length} members
+
+👪 FAMILY MEMBERS LIST
+
+${familyMembers}
+
+📊 SEARCH SUMMARY
+
+🔍 Mobile Searched: ${searchedNumber}
+👪 Total Family Members: ${familyData.memberDetailsList.length} members
+⏰ Search Timestamp: ${indianTime}
+`.trim();
 }
 
 // Helper function to extract pincode from address
