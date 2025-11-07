@@ -1,6 +1,6 @@
-const fetch = require('node-fetch');
+// For Node.js 22.x, we can use native fetch instead of node-fetch
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -190,7 +190,7 @@ module.exports = async (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
-};
+}
 
 // Helper function to format address
 function formatAddress(address) {
