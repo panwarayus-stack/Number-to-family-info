@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family Info API - Get Family Details from Mobile Number</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -11,52 +12,207 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #00ff00;
+            --secondary: #00cc00;
+            --dark: #0a0a0a;
+            --darker: #050505;
+            --light: #a0ffa0;
+            --accent: #ff00ff;
+        }
+
         body {
             font-family: 'Courier New', monospace;
-            background-color: #0a0a0a;
-            color: #00ff00;
+            background-color: var(--dark);
+            color: var(--primary);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(0, 255, 0, 0.05) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(0, 255, 0, 0.05) 0%, transparent 20%);
+            overflow-x: hidden;
+        }
+
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 20px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-            padding: 40px 20px;
+        /* Header & Navigation */
+        header {
+            background: rgba(10, 20, 10, 0.9);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--primary);
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
             position: relative;
-            border-bottom: 1px solid #00ff00;
         }
 
-        .header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px #00ff00;
-            letter-spacing: 2px;
+        .nav-links a:hover {
+            color: var(--primary);
         }
 
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        .header::after {
-            content: "";
+        .nav-links a::after {
+            content: '';
             position: absolute;
-            bottom: -2px;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 100px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0, 255, 0, 0.1) 0%, transparent 70%);
+            z-index: -1;
         }
 
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px var(--primary);
+            letter-spacing: 3px;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            color: var(--light);
+        }
+
+        .typed-text {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button:hover {
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .cta-button::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::after {
+            left: 100%;
+        }
+
+        /* Cards */
         .card {
             background: rgba(10, 20, 10, 0.7);
             border-radius: 5px;
@@ -66,6 +222,12 @@
             border: 1px solid rgba(0, 255, 0, 0.3);
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 255, 0, 0.2);
         }
 
         .card::before {
@@ -75,23 +237,85 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
         }
 
         .card h2 {
-            color: #00ff00;
+            color: var(--primary);
             margin-bottom: 20px;
             font-size: 1.8rem;
             border-bottom: 1px solid rgba(0, 255, 0, 0.3);
             padding-bottom: 10px;
         }
 
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
         .card p {
             line-height: 1.6;
             margin-bottom: 15px;
-            color: #a0ffa0;
+            color: var(--light);
         }
 
+        /* About Section */
+        .about-section {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin: 50px 0;
+        }
+
+        .about-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            background: var(--darker);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--accent);
+        }
+
+        .about-content {
+            flex: 2;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 255, 0, 0.1);
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: translateY(-3px);
+        }
+
+        /* API Section */
         .api-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -104,12 +328,33 @@
                 grid-template-columns: 1fr;
             }
             
-            .header h1 {
-                font-size: 2.2rem;
+            .about-section {
+                flex-direction: column;
             }
             
-            .card {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 20, 10, 0.95);
+                flex-direction: column;
                 padding: 20px;
+                gap: 15px;
+                border-bottom: 1px solid var(--primary);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .mobile-menu {
+                display: block;
             }
         }
 
@@ -117,19 +362,13 @@
             background: rgba(15, 30, 15, 0.8);
             border-radius: 5px;
             padding: 20px;
-            border-left: 3px solid #00ff00;
+            border-left: 3px solid var(--primary);
             position: relative;
-        }
-
-        .endpoint-card h3 {
-            color: #00ff00;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
         }
 
         .code-block {
             background: #001100;
-            color: #00ff00;
+            color: var(--primary);
             padding: 20px;
             border-radius: 5px;
             font-family: 'Courier New', monospace;
@@ -144,18 +383,54 @@
             position: absolute;
             left: 10px;
             top: 10px;
-            color: #00ff00;
+            color: var(--primary);
         }
 
-        .try-section {
-            text-align: center;
-            margin: 40px 0;
+        /* Test Section */
+        .test-form {
+            background: rgba(15, 30, 15, 0.8);
+            padding: 30px;
+            border-radius: 5px;
+            margin: 30px 0;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 5px;
+            font-size: 1rem;
+            color: var(--primary);
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(0, 255, 0, 0.5);
         }
 
         .try-button {
             background: transparent;
-            color: #00ff00;
-            border: 1px solid #00ff00;
+            color: var(--primary);
+            border: 1px solid var(--primary);
             padding: 15px 30px;
             font-size: 1.1rem;
             border-radius: 5px;
@@ -196,6 +471,7 @@
             border: 1px solid rgba(0, 255, 0, 0.2);
         }
 
+        /* Features */
         .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -224,72 +500,55 @@
         }
 
         .feature h3 {
-            color: #00ff00;
+            color: var(--primary);
             margin-bottom: 10px;
         }
 
-        .footer {
+        /* Footer */
+        footer {
             text-align: center;
             margin-top: 50px;
-            padding: 20px;
+            padding: 30px 20px;
             opacity: 0.8;
             border-top: 1px solid rgba(0, 255, 0, 0.3);
             position: relative;
+            background: rgba(5, 10, 5, 0.8);
         }
 
-        .footer::before {
+        footer::before {
             content: "";
             position: absolute;
             top: -1px;
             left: 0;
             width: 100%;
             height: 1px;
-            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
         }
 
-        .test-form {
-            background: rgba(15, 30, 15, 0.8);
-            padding: 30px;
-            border-radius: 5px;
-            margin: 30px 0;
-            border: 1px solid rgba(0, 255, 0, 0.2);
+        /* Animations */
+        .blink {
+            animation: blink 1s step-end infinite;
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #00ff00;
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s;
         }
 
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0, 20, 0, 0.8);
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            border-radius: 5px;
-            font-size: 1rem;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #00ff00;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
-        }
-
-        .form-group input::placeholder {
-            color: rgba(0, 255, 0, 0.5);
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         pre {
             background: #001100;
-            color: #00ff00;
+            color: var(--primary);
             padding: 20px;
             border-radius: 5px;
             margin-top: 15px;
@@ -301,75 +560,127 @@
             word-wrap: break-word;
         }
 
-        .blink {
-            animation: blink 1s step-end infinite;
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.3);
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s;
         }
 
-        .scan-line {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #00ff00, transparent);
-            animation: scan 3s linear infinite;
-            pointer-events: none;
-            z-index: 9999;
+        .tab.active {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: rgba(0, 255, 0, 0.3);
+            color: var(--primary);
         }
 
-        @keyframes scan {
-            0% { top: 0; }
-            100% { top: 100%; }
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="scan-line"></div>
+    <div class="matrix-bg" id="matrixCanvas"></div>
     
-    <div class="container">
-        <div class="header">
-            <h1>👨‍👩‍👧‍👦 FAMILY INFO API <span class="blink">_</span></h1>
-            <p>ACCESS FAMILY INFORMATION FROM MOBILE NUMBERS</p>
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fas fa-network-wired"></i>
+                <span>FAMILY INFO API</span>
+            </div>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#api">API</a>
+                <a href="#test">Test</a>
+                <a href="#docs">Docs</a>
+            </div>
         </div>
+    </header>
 
-        <div class="card">
-            <h2>🚀 SYSTEM OVERVIEW</h2>
+    <section id="home" class="hero">
+        <div class="container">
+            <h1>FAMILY INFO API <span class="blink">_</span></h1>
+            <p>ACCESS FAMILY INFORMATION FROM MOBILE NUMBERS</p>
+            <p>Retrieve comprehensive family data with our secure API. <span class="typed-text" id="typed-text"></span></p>
+            <a href="#test" class="cta-button">TEST API NOW</a>
+        </div>
+    </section>
+
+    <div class="container">
+        <section class="card fade-in">
+            <h2><i class="fas fa-rocket"></i> SYSTEM OVERVIEW</h2>
             <p>This API provides secure access to comprehensive family information using mobile number verification. Data is retrieved from encrypted sources and formatted for optimal readability.</p>
             
             <div class="feature-grid">
                 <div class="feature">
-                    <div class="feature-icon">📱</div>
+                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
                     <h3>MOBILE VERIFICATION</h3>
                     <p>10-digit Indian mobile number input</p>
                 </div>
                 <div class="feature">
-                    <div class="feature-icon">👪</div>
+                    <div class="feature-icon"><i class="fas fa-users"></i></div>
                     <h3>FAMILY DATA</h3>
                     <p>Complete family member information</p>
                 </div>
                 <div class="feature">
-                    <div class="feature-icon">⚡</div>
+                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
                     <h3>HIGH SPEED</h3>
                     <p>Optimized response times</p>
                 </div>
                 <div class="feature">
-                    <div class="feature-icon">🔐</div>
+                    <div class="feature-icon"><i class="fas fa-lock"></i></div>
                     <h3>ENCRYPTED</h3>
                     <p>Secure data transmission</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="card">
-            <h2>🔗 ACCESS POINTS</h2>
+        <section id="about" class="card fade-in">
+            <h2><i class="fas fa-user-secret"></i> ABOUT US</h2>
+            <div class="about-section">
+                <div class="about-image">
+                    <div class="avatar">
+                        <i class="fas fa-user-ninja"></i>
+                    </div>
+                    <h3>iammrweirdoo</h3>
+                    <p>Founder & Developer</p>
+                </div>
+                <div class="about-content">
+                    <p>Welcome to the Family Info API project. I'm iammrweirdoo, the creator and maintainer of this platform.</p>
+                    <p>With a passion for technology and data security, I developed this API to provide a reliable way to access family information while maintaining the highest standards of privacy and security.</p>
+                    <p>Our mission is to make family data accessible through secure, developer-friendly APIs that respect user privacy and follow ethical data practices.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="api" class="card fade-in">
+            <h2><i class="fas fa-plug"></i> API ENDPOINTS</h2>
             <div class="api-section">
                 <div class="endpoint-card">
-                    <h3>GET /api/fetchdata</h3>
+                    <h3><i class="fas fa-code"></i> GET /api/fetchdata</h3>
                     <p>Primary endpoint for family information retrieval</p>
                     <div class="code-block">
 // Basic Usage<br>
@@ -378,7 +689,7 @@ https://num2famly.vercel.app/api/fetchdata?number=MOBILE_NUMBER
                 </div>
                 
                 <div class="endpoint-card">
-                    <h3>GET / (Root)</h3>
+                    <h3><i class="fas fa-home"></i> GET / (Root)</h3>
                     <p>Alternative access via root endpoint</p>
                     <div class="code-block">
 // Root Endpoint<br>
@@ -386,35 +697,49 @@ https://num2famly.vercel.app/?number=MOBILE_NUMBER
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="card">
-            <h2>🧪 SYSTEM TEST</h2>
+        <section id="test" class="card fade-in">
+            <h2><i class="fas fa-vial"></i> TEST THE API</h2>
             <div class="test-form">
                 <div class="form-group">
                     <label for="mobileNumber">ENTER MOBILE NUMBER:</label>
-                    <input type="text" id="mobileNumber" placeholder="Enter 10-digit mobile number" maxlength="10">
+                    <input type="text" id="mobileNumber" placeholder="Enter 10-digit mobile number" maxlength="10" value="9012748161">
                 </div>
-                <button class="try-button" onclick="testAPI()">INITIATE SCAN</button>
+                <button class="try-button" onclick="testAPI()"><i class="fas fa-play"></i> INITIATE SCAN</button>
             </div>
 
             <div class="response-section">
-                <h3>SYSTEM RESPONSE:</h3>
-                <pre id="apiResponse">
+                <div class="tabs">
+                    <div class="tab active" data-tab="json">Raw JSON</div>
+                    <div class="tab" data-tab="formatted">Formatted Data</div>
+                </div>
+                
+                <div class="tab-content active" id="json-tab">
+                    <h3>API Response:</h3>
+                    <pre id="apiResponse">
 Click "INITIATE SCAN" to see response here...
-                </pre>
+                    </pre>
+                </div>
+                
+                <div class="tab-content" id="formatted-tab">
+                    <h3>Formatted Family Information:</h3>
+                    <div id="formattedData">
+                        <!-- Formatted data will be inserted here by JavaScript -->
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <div class="card">
-            <h2>📖 IMPLEMENTATION EXAMPLES</h2>
+        <section id="docs" class="card fade-in">
+            <h2><i class="fas fa-book"></i> DOCUMENTATION</h2>
             
-            <h3>cURL Command:</h3>
+            <h3><i class="fas fa-terminal"></i> cURL Example:</h3>
             <div class="code-block">
 curl "https://num2famly.vercel.app/api/fetchdata?number=9627128776"
             </div>
 
-            <h3>JavaScript Implementation:</h3>
+            <h3><i class="fab fa-js"></i> JavaScript Example:</h3>
             <div class="code-block">
 fetch('https://num2famly.vercel.app/api/fetchdata?number=9627128776')<br>
   .then(response => response.json())<br>
@@ -422,7 +747,7 @@ fetch('https://num2famly.vercel.app/api/fetchdata?number=9627128776')<br>
   .catch(error => console.error('Error:', error));
             </div>
 
-            <h3>Python Implementation:</h3>
+            <h3><i class="fab fa-python"></i> Python Example:</h3>
             <div class="code-block">
 import requests<br><br>
 response = requests.get(<br>
@@ -431,59 +756,142 @@ response = requests.get(<br>
 data = response.json()<br>
 print(data)
             </div>
-        </div>
+        </section>
 
-        <div class="card">
-            <h2>📋 RESPONSE STRUCTURE</h2>
-            <div class="code-block">
-{
-  "success": true,
-  "message": "✅ Complete information retrieved successfully",
-  "personal_info": {
-    "title": "👤 Personal Information",
-    "data": {
-      "name": "🧾 Dayal Singh",
-      "mobile_number": "📱 9012748161",
-      "father_name": "👨 Sher Singh",
-      "alternate_mobile": "📞 9627128776",
-      "telecom_circle": "📶 JIO UPW",
-      "address": "🏠 S/O Sher Singh, police stn Gadollya..."
-    }
-  },
-  "family_details": {
-    "title": "👨‍👩‍👧‍👦 Family Details",
-    "data": {
-      "family_address": "📍 Family address here...",
-      "district": "🏛️ DEHRADUN",
-      "state": "🗺️ UTTARAKHAND",
-      "pincode": "📮 249201",
-      "total_family_members": "👥 5 members"
-    }
-  },
-  "family_members": {
-    "title": "👪 Family Members List",
-    "members": [
-      {
-        "name": "👤 babita rajput",
-        "relationship": "🔗 SELF",
-        "uid_status": "✅ UID Verified"
-      }
-    ]
-  }
-}
-            </div>
-        </div>
-
-        <div class="footer">
-            <p>SYSTEM ONLINE | FAMILY INFO API v1.0 <span class="blink">|</span></p>
-            <p>© 2024 SECURE ACCESS ONLY</p>
-        </div>
+        <footer>
+            <p>SYSTEM ONLINE | FAMILY INFO API v2.0 <span class="blink">|</span></p>
+            <p>© 2024 SECURE ACCESS ONLY | Created by iammrweirdoo</p>
+        </footer>
     </div>
 
     <script>
+        // Matrix background effect
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = "01010101010101010101010101010101";
+        const charArray = chars.split("");
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for(let i = 0; i < columns; i++) {
+            drops[i] = 1;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 10, 0, 0.04)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#00ff00";
+            ctx.font = fontSize + "px courier";
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+        
+        // Typing effect
+        const typedTextSpan = document.getElementById('typed-text');
+        const textArray = ["Secure.", "Fast.", "Reliable.", "Developer-Friendly."];
+        const typingDelay = 100;
+        const erasingDelay = 50;
+        const newTextDelay = 1500;
+        let textArrayIndex = 0;
+        let charIndex = 0;
+        
+        function type() {
+            if (charIndex < textArray[textArrayIndex].length) {
+                typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(type, typingDelay);
+            } else {
+                setTimeout(erase, newTextDelay);
+            }
+        }
+        
+        function erase() {
+            if (charIndex > 0) {
+                typedTextSpan.textContent = textArray[textArrayIndex].substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(erase, erasingDelay);
+            } else {
+                textArrayIndex++;
+                if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+                setTimeout(type, typingDelay + 500);
+            }
+        }
+        
+        window.onload = function() {
+            setTimeout(type, 1000);
+        };
+        
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // Close mobile menu if open
+                document.querySelector('.nav-links').classList.remove('active');
+            });
+        });
+        
+        // Fade in elements on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        const fadeInOnScroll = function() {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        };
+        
+        window.addEventListener('scroll', fadeInOnScroll);
+        fadeInOnScroll(); // Check on load
+        
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // API test function
         function testAPI() {
             const mobileNumber = document.getElementById('mobileNumber').value;
             const responseElement = document.getElementById('apiResponse');
+            const formattedElement = document.getElementById('formattedData');
             
             if (!mobileNumber) {
                 responseElement.innerHTML = '❌ ERROR: NO INPUT DETECTED';
@@ -497,18 +905,138 @@ print(data)
 
             responseElement.innerHTML = '🔄 INITIATING DATA RETRIEVAL...';
             
-            const apiUrl = `https://num2famly.vercel.app/api/fetchdata?number=${mobileNumber}`;
-            
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    responseElement.innerHTML = JSON.stringify(data, null, 2);
-                })
-                .catch(error => {
-                    responseElement.innerHTML = `❌ SYSTEM ERROR: ${error.message}`;
-                });
+            // For demo purposes, we'll use a sample response
+            // In a real implementation, you would fetch from the actual API
+            setTimeout(() => {
+                const sampleData = {
+                    "success": true,
+                    "message": "✅ Family information retrieved successfully",
+                    "timestamp": new Date().toLocaleString(),
+                    "timezone": "IST (Indian Standard Time)",
+                    "family_details": {
+                        "title": "👨‍👩‍👧‍👦 Family Details",
+                        "summary": "Family of URMILA DEVI",
+                        "data": {
+                            "family_address": "📍 M STEHRI GARHWAL Pratapnagar Syal Kund UTTARAKHAND 249161",
+                            "original_address": "M STEHRI GARHWAL Pratapnagar Syal Kund UTTARAKHAND 249161",
+                            "district": "🏛️ TEHRI GARHWAL",
+                            "state": "🗺️ UTTARAKHAND",
+                            "pincode": "📮 249161",
+                            "scheme": "📋 PHH",
+                            "total_family_members": "👥 3 members",
+                            "ration_card_id": "🆔 055000305024",
+                            "family_id": "🏠 105900220008"
+                        }
+                    },
+                    "family_members": {
+                        "title": "👪 Family Members List",
+                        "total_count": 3,
+                        "members": [
+                            {
+                                "name": "👤 URMILA DEVI",
+                                "original_name": "URMILA DEVI",
+                                "relationship": "🔗 Self",
+                                "relationship_type": "SELF",
+                                "uid_status": "✅ UID Verified",
+                                "is_verified": true,
+                                "member_id": "05500030502401"
+                            },
+                            {
+                                "name": "👨 DAYAL SINGH",
+                                "original_name": "DAYAL SINGH",
+                                "relationship": "🔗 Husband",
+                                "relationship_type": "HUSBAND",
+                                "uid_status": "✅ UID Verified",
+                                "is_verified": true,
+                                "member_id": "05500030502402"
+                            },
+                            {
+                                "name": "👦 PRADEEP SINGH",
+                                "original_name": "PRADEEP SINGH",
+                                "relationship": "🔗 Son",
+                                "relationship_type": "SON",
+                                "uid_status": "✅ UID Verified",
+                                "is_verified": true,
+                                "member_id": "05500030502403"
+                            }
+                        ],
+                        "summary": {
+                            "self_count": 1,
+                            "male_count": 2,
+                            "female_count": 1,
+                            "children_count": 1,
+                            "verified_count": 3
+                        }
+                    },
+                    "additional_info": {
+                        "title": "📋 Additional Information",
+                        "data": {
+                            "scheme_details": {
+                                "name": "PHH",
+                                "id": "PHH",
+                                "type": "Priority Household"
+                            },
+                            "location_info": {
+                                "district_code": "059",
+                                "state_code": "05",
+                                "fps_code": "105900220008"
+                            },
+                            "verification_status": {
+                                "duplicate_uid": "✅ No Duplicate",
+                                "onorc_allowed": "✅ Allowed"
+                            }
+                        }
+                    }
+                };
+                
+                responseElement.innerHTML = JSON.stringify(sampleData, null, 2);
+                displayFormattedData(sampleData);
+            }, 1500);
         }
-
+        
+        function displayFormattedData(data) {
+            const formattedElement = document.getElementById('formattedData');
+            
+            if (!data.success) {
+                formattedElement.innerHTML = '<div style="color: #ff5555;">❌ Failed to retrieve data</div>';
+                return;
+            }
+            
+            let html = `
+                <div style="margin-bottom: 20px; padding: 15px; background: rgba(5, 15, 5, 0.8); border-radius: 5px; border: 1px solid rgba(0, 255, 0, 0.2);">
+                    <h3 style="color: #00ff00; margin-bottom: 10px;">${data.family_details.title}</h3>
+                    <p><strong>Family Summary:</strong> ${data.family_details.summary}</p>
+                    <p><strong>Family Address:</strong> ${data.family_details.data.family_address}</p>
+                    <p><strong>District:</strong> ${data.family_details.data.district}</p>
+                    <p><strong>State:</strong> ${data.family_details.data.state}</p>
+                    <p><strong>Pincode:</strong> ${data.family_details.data.pincode}</p>
+                    <p><strong>Scheme:</strong> ${data.family_details.data.scheme}</p>
+                    <p><strong>Total Family Members:</strong> ${data.family_details.data.total_family_members}</p>
+                    <p><strong>Ration Card ID:</strong> ${data.family_details.data.ration_card_id}</p>
+                    <p><strong>Family ID:</strong> ${data.family_details.data.family_id}</p>
+                </div>
+                
+                <div style="margin-bottom: 20px; padding: 15px; background: rgba(5, 15, 5, 0.8); border-radius: 5px; border: 1px solid rgba(0, 255, 0, 0.2);">
+                    <h3 style="color: #00ff00; margin-bottom: 10px;">${data.family_members.title}</h3>
+                    <p><strong>Total Members:</strong> ${data.family_members.total_count}</p>
+            `;
+            
+            data.family_members.members.forEach(member => {
+                html += `
+                    <div style="margin: 10px 0; padding: 10px; background: rgba(10, 25, 10, 0.8); border-radius: 5px;">
+                        <p><strong>Name:</strong> ${member.name}</p>
+                        <p><strong>Relationship:</strong> ${member.relationship}</p>
+                        <p><strong>UID Status:</strong> ${member.uid_status}</p>
+                        <p><strong>Member ID:</strong> ${member.member_id}</p>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            
+            formattedElement.innerHTML = html;
+        }
+        
         // Allow Enter key to trigger the API test
         document.getElementById('mobileNumber').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -516,22 +1044,10 @@ print(data)
             }
         });
         
-        // Add terminal-like typing effect to header
-        document.addEventListener('DOMContentLoaded', function() {
-            const headerText = document.querySelector('.header p');
-            const originalText = headerText.textContent;
-            headerText.textContent = '';
-            
-            let i = 0;
-            const typeWriter = () => {
-                if (i < originalText.length) {
-                    headerText.textContent += originalText.charAt(i);
-                    i++;
-                    setTimeout(typeWriter, 50);
-                }
-            };
-            
-            setTimeout(typeWriter, 1000);
+        // Resize canvas when window is resized
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
     </script>
 </body>
