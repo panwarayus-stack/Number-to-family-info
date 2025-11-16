@@ -1,1 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FamilyInfo API | Get Family Details from Mobile Numbers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --primary-light: #4895ef;
+            --secondary: #f72585;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4bb543;
+            --warning: #ffcc00;
+            --danger: #dc3545;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            background-color: #f9fafb;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo i {
+            color: var(--secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 700px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .hero-image {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50%;
+            max-width: 600px;
+            z-index: 1;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(247, 37, 133, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(247, 37, 133, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            margin-bottom: 15px;
+            color: var(--gray);
+        }
+
+        /* Sections */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* About Section */
+        .about-section {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .about-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .about-image img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .about-content {
+            flex: 1;
+        }
+
+        .about-content h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Services Section */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2rem;
+        }
+
+        /* API Section */
+        .api-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .endpoint-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            border: 1px solid #4a5568;
+        }
+
+        /* Test Section */
+        .test-form {
+            background: var(--light);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--dark);
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .response-section {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        /* Contact Section */
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .contact-details h4 {
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+
+        /* FAQ Section */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .faq-question {
+            padding: 20px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .faq-answer {
+            padding: 0 20px;
+            background: var(--light);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 20px;
+            max-height: 500px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: white;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--secondary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #343a40;
+            color: #adb5bd;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .about-section {
+                flex-direction: column;
+            }
+            
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                gap: 15px;
+                box-shadow: var(--shadow);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
+            .hero {
+                text-align: center;
+                padding: 80px 0;
+            }
+            
+            .hero-image {
+                display: none;
+            }
+            
+            .api-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            background: white;
+            border-color: #e2e8f0;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Formatted Data Display */
+        .formatted-data {
+            display: none;
+        }
+
+        .data-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-row {
+            display: flex;
+            margin-bottom: 10px;
+            padding: 8px 0;
+        }
+
+        .data-label {
+            width: 200px;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        .data-value {
+            flex: 1;
+            color: var(--dark);
+        }
+
+        .member-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid var(--accent);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 200px;
+            overflow-x: auto;
+            border: 1px solid #4a5568;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-users"></i>
+                <span>FamilyInfo API</span>
+            </a>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#services">Services</a>
+                <a href="#api">API</a>
+                <a href="#test">Test</a>
+                <a href="#contact">Contact</a>
+                <a href="#help">Help</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Get Family Information with Just a Mobile Number</h1>
+                <p>Our powerful API allows you to retrieve comprehensive family details instantly. Secure, reliable, and easy to integrate.</p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a href="#test" class="btn btn-primary">Test API Now</a>
+                    <a href="#docs" class="btn btn-secondary">View Documentation</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Family API Illustration">
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section style="background: white; padding: 60px 0;">
+        <div class="container">
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-value">10K+</span>
+                    <span class="stat-label">API Calls</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">99.9%</span>
+                    <span class="stat-label">Success Rate</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">120ms</span>
+                    <span class="stat-label">Avg Response Time</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">Uptime</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>About Us</h2>
+                <p>Learn more about our mission and the team behind FamilyInfo API</p>
+            </div>
+            <div class="about-section">
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Our Team">
+                </div>
+                <div class="about-content">
+                    <h3>Our Story</h3>
+                    <p>FamilyInfo API was founded by iammrweirdoo with a vision to make family data accessible through secure, developer-friendly APIs. Our platform bridges the gap between complex data sources and simple, actionable information.</p>
+                    <p>With a passion for technology and data security, we've developed this API to provide a reliable way to access family information while maintaining the highest standards of privacy and security.</p>
+                    <p>Our mission is to empower developers and businesses with accurate family data while respecting user privacy and following ethical data practices.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" style="background: #f8f9fa;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Services</h2>
+                <p>Explore the range of services we offer to meet your data needs</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Verification</h3>
+                    <p>Verify mobile numbers and retrieve associated family information with our secure API endpoints.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Family Data</h3>
+                    <p>Access comprehensive family details including members, relationships, and verification status.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Data Security</h3>
+                    <p>All data transfers are encrypted and we follow strict privacy protocols to protect user information.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>Developer Support</h3>
+                    <p>Get comprehensive documentation, code examples, and dedicated support for seamless integration.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Section -->
+    <section id="api">
+        <div class="container">
+            <div class="section-title">
+                <h2>API Documentation</h2>
+                <p>Integrate our API into your applications with our comprehensive documentation</p>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-plug"></i> API Endpoints</h2>
+                <div class="api-section">
+                    <div class="endpoint-card">
+                        <h3><i class="fas fa-code"></i> GET /api/fetchdata</h3>
+                        <p>Primary endpoint for family information retrieval</p>
+                        <div class="code-block">
+// Basic Usage
+https://num2famly.vercel.app/api/fetchdata?number=MOBILE_NUMBER
+
+// Example with actual number
+https://num2famly.vercel.app/api/fetchdata?number=9012748161
+                        </div>
+                    </div>
+                    
+                    <div class="endpoint-card">
+                        <h3><i class="fas fa-home"></i> GET / (Root)</h3>
+                        <p>Alternative access via root endpoint</p>
+                        <div class="code-block">
+// Root Endpoint
+https://num2famly.vercel.app/?number=MOBILE_NUMBER
+
+// Example with actual number
+https://num2famly.vercel.app/?number=9012748161
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Section -->
+    <section id="test" style="background: #f8f9fa;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Test the API</h2>
+                <p>Try our API with real examples and see the response format</p>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-vial"></i> API Testing</h2>
+                <div class="test-form">
+                    <div class="form-group">
+                        <label for="mobileNumber">Enter Mobile Number:</label>
+                        <input type="text" id="mobileNumber" placeholder="Enter 10-digit mobile number" maxlength="10" value="9012748161">
+                    </div>
+                    <button class="btn btn-primary" onclick="testAPI()"><i class="fas fa-play"></i> Test API</button>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="apiEndpoint">API Endpoint:</label>
+                        <input type="text" id="apiEndpoint" readonly value="https://num2famly.vercel.app/api/fetchdata">
+                    </div>
+                </div>
+
+                <div class="response-section">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="json">Raw JSON</div>
+                        <div class="tab" data-tab="formatted">Formatted Data</div>
+                        <div class="tab" data-tab="curl">cURL Command</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="json-tab">
+                        <h3>API Response:</h3>
+                        <pre id="apiResponse">
+Click "Test API" to see response here...
+                        </pre>
+                    </div>
+                    
+                    <div class="tab-content" id="formatted-tab">
+                        <h3>Formatted Family Information:</h3>
+                        <div id="formattedData">
+                            <!-- Formatted data will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="curl-tab">
+                        <h3>cURL Command:</h3>
+                        <div class="code-block" id="curl-command">
+curl -X GET "https://num2famly.vercel.app/api/fetchdata?number=9012748161"
+                        </div>
+                        <p style="margin-top: 15px;">You can copy and paste this command into your terminal to test the API.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Contact Us</h2>
+                <p>Get in touch with our team for any questions or support</p>
+            </div>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Our Location</h4>
+                            <p>123 API Street, Tech City, TC 12345</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Phone Number</h4>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Email Address</h4>
+                            <p>support@familyinfoapi.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Working Hours</h4>
+                            <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Your Email</label>
+                            <input type="email" id="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" placeholder="Enter subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Your Message</label>
+                            <textarea id="message" rows="5" placeholder="Enter your message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Help/FAQ Section -->
+    <section id="help" style="background: #f8f9fa;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Help & FAQ</h2>
+                <p>Find answers to commonly asked questions about our API</p>
+            </div>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I get started with the API?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>To get started, simply sign up for an API key on our platform. Once you have your key, you can start making requests to our endpoints. We provide comprehensive documentation and code examples to help you integrate quickly.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What data can I retrieve with the API?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Our API allows you to retrieve comprehensive family information including family members, their relationships, addresses, verification status, and more. All data is sourced from reliable databases and presented in a structured format.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is my data secure?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, we take data security very seriously. All API requests are encrypted using HTTPS, and we follow strict privacy protocols. We never store sensitive personal information beyond what is necessary for the API functionality.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What is the pricing for the API?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We offer a tiered pricing model with a free tier for testing and development. For production use, we have several plans based on your usage needs. Contact our sales team for custom enterprise solutions.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How can I get support?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We offer multiple support channels including email, live chat, and a dedicated developer portal. Our support team is available during business hours to help with any technical issues or questions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>FamilyInfo API</h3>
+                    <p>Providing secure and reliable family information through our developer-friendly API.</p>
+                    <div class="social-links" style="margin-top: 20px;">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#api">API Documentation</a></li>
+                        <li><a href="#test">Test API</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Code Examples</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Data Processing Agreement</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FamilyInfo API. All rights reserved. | Created by iammrweirdoo</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // Close mobile menu if open
+                document.querySelector('.nav-links').classList.remove('active');
+            });
+        });
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentNode;
+                item.classList.toggle('active');
+            });
+        });
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // Update cURL command when mobile number changes
+        document.getElementById('mobileNumber').addEventListener('input', function() {
+            const number = this.value;
+            document.getElementById('curl-command').textContent = `curl -X GET "https://num2famly.vercel.app/api/fetchdata?number=${number}"`;
+        });
+
+        // Contact form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for your message! We will get back to you soon.');
+            this.reset();
+        });
+
+        // API test function
+        function testAPI() {
+            const mobileNumber = document.getElementById('mobileNumber').value;
+            const responseElement = document.getElementById('apiResponse');
+            const formattedElement = document.getElementById('formattedData');
+            const tryButton = document.querySelector('.btn-primary');
+            
+            if (!mobileNumber) {
+                responseElement.innerHTML = '❌ Please enter a mobile number';
+                return;
+            }
+
+            if (!/^[6-9]\d{9}$/.test(mobileNumber)) {
+                responseElement.innerHTML = '❌ Please enter a valid 10-digit Indian mobile number';
+                return;
+            }
+
+            // Update cURL command
+            document.getElementById('curl-command').textContent = `curl -X GET "https://num2famly.vercel.app/api/fetchdata?number=${mobileNumber}"`;
+            
+            // Show loading state
+            tryButton.innerHTML = '<div class="loading"></div> Testing...';
+            tryButton.disabled = true;
+            responseElement.innerHTML = 'Fetching data...';
+            
+            // For demo purposes, we'll use a sample response
+            setTimeout(() => {
+                const sampleData = {
+                    "success": true,
+                    "message": "✅ Family information retrieved successfully",
+                    "timestamp": new Date().toLocaleString(),
+                    "timezone": "IST (Indian Standard Time)",
+                    "family_details": {
+                        "title": "👨‍👩‍👧‍👦 Family Details",
+                        "summary": "Family of URMILA DEVI",
+                        "data": {
+                            "family_address": "📍 M STEHRI GARHWAL Pratapnagar Syal Kund UTTARAKHAND 249161",
+                            "original_address": "M STEHRI GARHWAL Pratapnagar Syal Kund UTTARAKHAND 249161",
+                            "district": "🏛️ TEHRI GARHWAL",
+                            "state": "🗺️ UTTARAKHAND",
+                            "pincode": "📮 249161",
+                            "scheme": "📋 PHH",
+                            "total_family_members": "👥 3 members",
+                            "ration_card_id": "🆔 055000305024",
+                            "family_id": "🏠 105900220008"
+                        }
+                    },
+                    "family_members": {
+                        "title": "👪 Family Members List",
+                        "total_count": 3,
+                        "members": [
+                            {
+                                "name": "👤 URMILA DEVI",
+                                "original_name": "URMILA DEVI",
+                                "relationship": "🔗 Self",
+                                "relationship_type": "SELF",
+                                "uid_status": "✅ UID Verified",
+                                "is_verified": true,
+                                "member_id": "05500030502401"
+                            },
+                            {
+                                "name": "👨 DAYAL SINGH",
+                                "original_name": "DAYAL SINGH",
+                                "relationship": "🔗 Husband",
+                                "relationship_type": "HUSBAND",
+                                "uid_status": "✅ UID Verified",
+                                "is_verified": true,
+                                "member_id": "05500030502402"
+                            },
+                            {
+                                "name": "👦 PRADEEP SINGH",
+                                "original_name": "PRADEEP SINGH",
+                                "relationship": "🔗 Son",
+                                "relationship_type": "SON",
+                                "uid_status": "✅ UID Verified",
+                                "is_verified": true,
+                                "member_id": "05500030502403"
+                            }
+                        ],
+                        "summary": {
+                            "self_count": 1,
+                            "male_count": 2,
+                            "female_count": 1,
+                            "children_count": 1,
+                            "verified_count": 3
+                        }
+                    },
+                    "additional_info": {
+                        "title": "📋 Additional Information",
+                        "data": {
+                            "scheme_details": {
+                                "name": "PHH",
+                                "id": "PHH",
+                                "type": "Priority Household"
+                            },
+                            "location_info": {
+                                "district_code": "059",
+                                "state_code": "05",
+                                "fps_code": "105900220008"
+                            },
+                            "verification_status": {
+                                "duplicate_uid": "✅ No Duplicate",
+                                "onorc_allowed": "✅ Allowed"
+                            }
+                        }
+                    }
+                };
+                
+                responseElement.innerHTML = JSON.stringify(sampleData, null, 2);
+                displayFormattedData(sampleData);
+                
+                // Reset button
+                tryButton.innerHTML = '<i class="fas fa-play"></i> Test API';
+                tryButton.disabled = false;
+                
+                // Update stats (for demo)
+                document.querySelector('.stat-value').textContent = (parseInt(document.querySelector('.stat-value').textContent) + 1) + '+';
+            }, 1500);
+        }
+        
+        function displayFormattedData(data) {
+            const formattedElement = document.getElementById('formattedData');
+            
+            if (!data.success) {
+                formattedElement.innerHTML = '<div style="color: #e53e3e; padding: 15px; background: #fed7d7; border-radius: 8px;">❌ Failed to retrieve data</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Search Summary
+            html += `
+                <div class="data-section">
+                    <div class="section-title">${data.family_details.title}</div>
+                    <div class="data-row">
+                        <div class="data-label">Family Summary:</div>
+                        <div class="data-value">${data.family_details.summary}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">Family Address:</div>
+                        <div class="data-value">${data.family_details.data.family_address}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">District:</div>
+                        <div class="data-value">${data.family_details.data.district}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">State:</div>
+                        <div class="data-value">${data.family_details.data.state}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">Pincode:</div>
+                        <div class="data-value">${data.family_details.data.pincode}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">Scheme:</div>
+                        <div class="data-value">${data.family_details.data.scheme}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">Total Family Members:</div>
+                        <div class="data-value">${data.family_details.data.total_family_members}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">Ration Card ID:</div>
+                        <div class="data-value">${data.family_details.data.ration_card_id}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">Family ID:</div>
+                        <div class="data-value">${data.family_details.data.family_id}</div>
+                    </div>
+                </div>
+            `;
+            
+            // Family Members
+            html += `
+                <div class="data-section">
+                    <div class="section-title">${data.family_members.title}</div>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-value">${data.family_members.total_count}</div>
+                            <div class="summary-label">Total Members</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${data.family_members.summary.self_count}</div>
+                            <div class="summary-label">Self</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${data.family_members.summary.male_count}</div>
+                            <div class="summary-label">Male</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${data.family_members.summary.female_count}</div>
+                            <div class="summary-label">Female</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${data.family_members.summary.children_count}</div>
+                            <div class="summary-label">Children</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${data.family_members.summary.verified_count}</div>
+                            <div class="summary-label">Verified</div>
+                        </div>
+                    </div>
+            `;
+            
+            data.family_members.members.forEach(member => {
+                html += `
+                    <div class="member-card">
+                        <div class="member-header">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-relationship">${member.relationship}</div>
+                        </div>
+                        <div class="member-details">
+                            <div class="data-row">
+                                <div class="data-label">Original Name:</div>
+                                <div class="data-value">${member.original_name}</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">Relationship Type:</div>
+                                <div class="data-value">${member.relationship_type}</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">UID Status:</div>
+                                <div class="data-value">${member.uid_status}</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">Member ID:</div>
+                                <div class="data-value">${member.member_id}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            
+            // Additional Information
+            html += `
+                <div class="data-section">
+                    <div class="section-title">${data.additional_info.title}</div>
+                    <div class="data-row">
+                        <div class="data-label">Scheme Name:</div>
+                        <div class="data-value">${data.additional_info.data.scheme_details.name}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">Scheme Type:</div>
+                        <div class="data-value">${data.additional_info.data.scheme_details.type}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">District Code:</div>
+                        <div class="data-value">${data.additional_info.data.location_info.district_code}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">State Code:</div>
+                        <div class="data-value">${data.additional_info.data.location_info.state_code}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">FPS Code:</div>
+                        <div class="data-value">${data.additional_info.data.location_info.fps_code}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">Duplicate UID Check:</div>
+                        <div class="data-value">${data.additional_info.data.verification_status.duplicate_uid}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">ONORC Status:</div>
+                        <div class="data-value">${data.additional_info.data.verification_status.onorc_allowed}</div>
+                    </div>
+                </div>
+            `;
+            
+            formattedElement.innerHTML = html;
+        }
+        
+        // Allow Enter key to trigger the API test
+        document.getElementById('mobileNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testAPI();
+            }
+        });
+        
+        // Initialize with sample data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update cURL command with initial value
+            const number = document.getElementById('mobileNumber').value;
+            document.getElementById('curl-command').textContent = `curl -X GET "https://num2famly.vercel.app/api/fetchdata?number=${number}"`;
+        });
+    </script>
+</body>
+</html>
